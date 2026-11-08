@@ -139,7 +139,13 @@ fn copy_everything_runtime_next_to_exe() {
     let manifest =
         PathBuf::from(std::env::var_os("CARGO_MANIFEST_DIR").expect("CARGO_MANIFEST_DIR"));
     let profile = std::env::var("PROFILE").unwrap_or_else(|_| "debug".into());
-    let dest_dir = manifest.join("target").join(&profile);
+    // 目标目录：target/{TARGET}/{profile}（交叉编译时 TARGET 为 x86_64-pc-windows-gnu 等三元组）
+    let target = std::env::var("TARGET").unwrap_or_default();
+    let dest_dir = if target.is_empty() {
+        manifest.join("target").join(&profile)
+    } else {
+        manifest.join("target").join(&target).join(&profile)
+    };
     let src_dir = manifest.join("everything");
     if !src_dir.is_dir() {
         println!("cargo:warning=缺少 everything/ 运行时目录，计算机搜索将无法使用捆绑 Everything");
