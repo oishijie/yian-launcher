@@ -1,0 +1,8 @@
+/target
+**/*.rs.bk
+config.json
+config.json.bak
+config.json.corrupt
+config.json.tmp
+/icons
+/dragout
