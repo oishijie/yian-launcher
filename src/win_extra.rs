@@ -10,13 +10,14 @@ pub mod win {
     const APP_VALUE_NAME: &str = "YianLauncher";
 
  /// 任何窗口/托盘/热键 HWND 之前先调这个
- /// Manifest 已经写了 PerMonitorV2 的话这里会失败，无所谓 老包没嵌入 manifest 就靠它兜底
-    pub fn ensure_per_monitor_dpi_v2() {
+ /// 已移除 manifest 的 DPI 声明（MinGW windres 嵌入不可靠），改为纯运行时确定性设置
+ pub fn ensure_per_monitor_dpi_v2() {
         use windows::Win32::UI::HiDpi::{
             SetProcessDpiAwarenessContext, DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE,
             DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2,
         };
         unsafe {
+ // 先尝试 V2，失败退回 V1。由于 manifest 不再声明 DPI，这里能确定性生效。
             if SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2).is_err() {
                 let _ = SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE);
             }
